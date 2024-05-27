@@ -124,3 +124,16 @@ int evaluatePrefix(char *prefix) {
     }
     return pop(&stack);
 }
+int main() {
+    char infix[MAX_SIZE], prefix[MAX_SIZE];
+    printf("Enter infix expression: ");
+    fgets(infix, MAX_SIZE, stdin);
+    infix[strlen(infix) - 1] = '\0'; // Remove newline character
+    infixToPrefix(infix, prefix);
+    printf("Prefix expression: %s\n", prefix);
+    
+    int result = evaluatePrefix(prefix);
+    printf("Result after evaluation: %d\n", result);
+
+    return 0;
+}
