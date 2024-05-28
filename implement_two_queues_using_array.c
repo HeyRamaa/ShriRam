@@ -1,87 +1,123 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX_SIZE 100
-#define MAX_QUEUES 5
+#define MAX 10 // Maximum size of the array
 
-struct Queue {
-    int data[MAX_SIZE];
-    int front[MAX_QUEUES];
-    int rear[MAX_QUEUES];
-};
+typedef struct {
+    int arr[MAX];
+    int front1, rear1;
+    int front2, rear2;
+} TwoQueue;
 
-void initializeQueue(struct Queue *queue, int queue_num) {
-    queue->front[queue_num] = -1;
-    queue->rear[queue_num] = -1;
+void initializeQueue(TwoQueue* q) {
+    q->front1 = -1;
+    q->rear1 = -1;
+    q->front2 = MAX;
+    q->rear2 = MAX;
 }
 
-int isFull(struct Queue *queue, int queue_num) {
-    return (queue->rear[queue_num] == MAX_SIZE - 1);
+int isFull(TwoQueue* q) {
+    return q->rear1 + 1 == q->rear2;
 }
 
-int isEmpty(struct Queue *queue, int queue_num) {
-    return (queue->front[queue_num] == -1 || queue->front[queue_num] > queue->rear[queue_num]);
+int isEmpty1(TwoQueue* q) {
+    return q->front1 == -1;
 }
 
-void addq(struct Queue *queue, int queue_num, int value) {
-    if (isFull(queue, queue_num)) {
-        printf("Queue %d Overflow\n", queue_num);
+int isEmpty2(TwoQueue* q) {
+    return q->front2 == MAX;
+}
+
+void addq(TwoQueue* q, int queueNumber, int value) {
+    if (isFull(q)) {
+        printf("Queue Overflow\n");
         return;
     }
-    if (isEmpty(queue, queue_num)) {
-        queue->front[queue_num] = 0;
-        queue->rear[queue_num] = 0;
-    } else {
-        queue->rear[queue_num]++;
+    if (queueNumber == 1) {
+        if (q->rear1 == -1) {
+            q->front1 = q->rear1 = 0;
+        } else {
+            q->rear1++;
+        }
+        q->arr[q->rear1] = value;
+    } else if (queueNumber == 2) {
+        if (q->rear2 == MAX) {
+            q->front2 = q->rear2 = MAX - 1;
+        } else {
+            q->rear2--;
+        }
+        q->arr[q->rear2] = value;
     }
-    queue->data[queue->rear[queue_num]] = value;
 }
-int delq(struct Queue *queue, int queue_num) {
-    if (isEmpty(queue, queue_num)) {
-        printf("Queue %d Underflow\n", queue_num);
-        return -1;
+
+void delq(TwoQueue* q, int queueNumber) {
+    if (queueNumber == 1) {
+        if (isEmpty1(q)) {
+            printf("Queue Underflow\n");
+            return;
+        }
+        printf("Deleted from Queue 1: %d\n", q->arr[q->front1]);
+        if (q->front1 == q->rear1) {
+            q->front1 = q->rear1 = -1;
+        } else {
+            q->front1++;
+        }
+    } else if (queueNumber == 2) {
+        if (isEmpty2(q)) {
+            printf("Queue Underflow\n");
+            return;
+        }
+        printf("Deleted from Queue 2: %d\n", q->arr[q->front2]);
+        if (q->front2 == q->rear2) {
+            q->front2 = q->rear2 = MAX;
+        } else {
+            q->front2--;
+        }
     }
-    int value = queue->data[queue->front[queue_num]];
-    if (queue->front[queue_num] == queue->rear[queue_num]) {
-        queue->front[queue_num] = -1;
-        queue->rear[queue_num] = -1;
-    } else {
-        queue->front[queue_num]++;
-    }
-    return value;
 }
-void display(struct Queue *queue, int queue_num) {
-    if (isEmpty(queue, queue_num)) {
-        printf("Queue %d is empty\n", queue_num);
-        return;
+
+void displayQueue(TwoQueue* q, int queueNumber) {
+    if (queueNumber == 1) {
+        if (isEmpty1(q)) {
+            printf("Queue 1 is empty\n");
+            return;
+        }
+        printf("Queue 1: ");
+        for (int i = q->front1; i <= q->rear1; i++) {
+            printf("%d ", q->arr[i]);
+        }
+        printf("\n");
+    } else if (queueNumber == 2) {
+        if (isEmpty2(q)) {
+            printf("Queue 2 is empty\n");
+            return;
+        }
+        printf("Queue 2: ");
+        for (int i = q->front2; i >= q->rear2; i--) {
+            printf("%d ", q->arr[i]);
+        }
+        printf("\n");
     }
-    printf("Queue %d elements: ", queue_num);
-    for (int i = queue->front[queue_num]; i <= queue->rear[queue_num]; i++) {
-        printf("%d ", queue->data[i]);
-    }
-    printf("\n");
 }
 
 int main() {
-    struct Queue queue;
-    for (int i = 0; i < MAX_QUEUES; i++) {
-        initializeQueue(&queue, i);
-    }
+    TwoQueue q;
+    initializeQueue(&q);
 
-    addq(&queue, 0, 5);
-    addq(&queue, 0, 10);
-    addq(&queue, 1, 15);
-    addq(&queue, 1, 20);
-    addq(&queue, 2, 25);
-    addq(&queue, 2, 30);
+    // Test operations
+    addq(&q, 1, 10);
+    addq(&q, 1, 20);
+    addq(&q, 2, 30);
+    addq(&q, 2, 40);
 
-    display(&queue, 0);
-    display(&queue, 1);
-    display(&queue, 2);
+    displayQueue(&q, 1); // Displays Queue 1
+    displayQueue(&q, 2); // Displays Queue 2
 
-    printf("Deleted element from Queue 1: %d\n", delq(&queue, 1));
+    delq(&q, 1); // Deletes from Queue 1
+    delq(&q, 2); // Deletes from Queue 2
 
-    display(&queue, 1);
+    displayQueue(&q, 1); // Displays Queue 1
+    displayQueue(&q, 2); // Displays Queue 2
 
     return 0;
 }
